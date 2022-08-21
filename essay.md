@@ -1,0 +1,66 @@
+The app is a very simple Tasks list. The user can register, sign in, and then view and manipulate their Tasks list.
+
+The app can be found at xx and it is made using Python + Django. You can start the app by...
+
+I have used OWASP 2021 list for the flaws.
+
+1. Cross-site request forgery (CSRF). This type of attack exploits a vulnerability in checking for session credentials when submitting a form. If a CSRF token is not checked when submitting a form, a malicious intruder can utilize a signed in user's credentials by leading them to a false site through which the intruder can post forms et cetera under the user's credentials.
+
+In this project, the form adding a task has no CSRF token check (it has been disabled), thus enabling a CSRF attack.
+
+In Django, in order to force CSRF token checking when submitting a form, the line {% csrf_token %} should be added to the addtask form on page tasks.html, much in the same way that it is included in e.g. the donetask form on the same page. In addition the @csrf_exempt decorator must be removed from addtask method in views.py. Django will then automatically require a CSRF token when submitting a form.
+
+2. SQL injection as an example of Injection. When user input is used as such as part of an SQL command, the malicious user can input data that will perform as unintended; for example, they may input data that will drop all database tables. To prevent this, user inputs must be sanitized before using them as a part of an SQL command.
+
+In this project, when signing in, the user is fetched from the tasks_user database table with a raw SQL query, in which the user input from the sign in form is used as such without validation or sanitation. This makes the query vulnerable to injection. Namely, the user is fetched as such:
+
+query = 'SELECT * FROM tasks_user WHERE username = "%s"' % request.POST['username']
+user = User.objects.raw(query)[0]
+
+Extra SQL commands could be added to the end of the query and access to the database gained in this way.
+The query should instead be applied using Django's ORM, which provides automatic protection from SQL injection, as follows:
+
+username = request.POST['username']
+user = User.objects.get(username=username)
+
+Alternatively the raw SQL query could be done in a safe way by using a params argument:
+
+username = request.POST['username']
+user = User.objects.raw('SELECT * FROM tasks_user WHERE username = %s', [username])[0]
+
+3. Broken Access Control by way of allowing URLs to be manipulated in such a way as to gain access to private data.
+
+In this project, the task listing for each user is under tasks/users/'username'. There is no check to see that the signed in user is the one accessing the page, so anyone who knows other users' usernames can access and even manipulate their task lists.
+
+4. Identification and Authentication failures, which includes both insufficient complexity requirements for passwords and storing usernames and passwords in an insecure way in the database. In addition, this includes exposing session identifiers e.g. in the URL.
+
+In this project, there are no requirements for password length or complexity, thus enabling weak and default passwords. The usernames and passwords are stored as plaintext in the database, which means that if the database is broken into, all user credentials are freely available to the intruder. Further, the username is used as the session identifier, and shown in the URL for the task list.
+
+5. Security Logging and Monitoring Failures occur when events such as logins and errors are not clearly logged in order to reveal security breaches.
+
+In this project, there is no logging of user activity, including logins or login attempts. For example, when a user logs in, the login is not recorded for future viewing.
+
+This could be enabled e.g. by ...
+
+# word count? 1000 word report (hard limits: 800-1500)
+# initialize database again?
+# gitignore?
+
+# LINK: link to the repository
+# installation instructions if needed
+
+# FLAW 1:
+# exact source link pinpointing flaw 1...
+# description of flaw 1...
+# how to fix it...
+
+# FLAW 2:
+# exact source link pinpointing flaw 2...
+# description of flaw 2...
+# how to fix it...
+
+# Add source link to each flaw if appropriate. Ideally, the link should have the format https://urldomain/repo/# file.py#L42 (Line 42 in file.py). The links can be easily obtained by clicking the line numbers in the Github # repository file browser. If the flaw involves in omitting some code, then comment-out the code, and provide
+# the link to the beginning of the commented block.
+
+# Be specific with your fix. If possible, provide a fix to the problem in the code. The fix can be commented
+# out. If appropriate, add a source link to each fix as well.

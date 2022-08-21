@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Super Secure Tasks App</title>
+    <style>
+      body {font-family: 'Courier New', Courier, monospace; color: black; margin: 20px; text-align: center;}
+    </style>
+  </head>
+  <body>
+    <h2>Tasks</h2>
+    <hr style="width: 20%;">
+    <form action="{% url 'signin' %}" method="post">
+      {% csrf_token %}
+      <p>Username</p>
+      <input type="text" name="username" id="username" value="">
+      <br>
+      <p>Password</p>
+      <input type="password" name="password" id="password" value="">
+      <br>
+      <br>
+      <input type="submit" value="Sign in" style="background-color: white;">
+    </form>
+    <br>
+    <hr style="width: 20%;">
+    <h4><a href="{% url 'register' %}">Register</a></h4>
+  </body>
+</html>
