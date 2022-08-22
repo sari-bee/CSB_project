@@ -32,15 +32,49 @@ user = User.objects.raw('SELECT * FROM tasks_user WHERE username = %s', [usernam
 
 In this project, the task listing for each user is under tasks/users/'username'. There is no check to see that the signed in user is the one accessing the page, so anyone who knows other users' usernames can access and even manipulate their task lists.
 
+This could be fixed by adding the following to the beginning of the tasks method:
+
+if username != request.session['username']:
+    return HttpResponseRedirect(reverse('error'))
+
+Thus, if the username carried in the session of the user currently logged in does not match the username carried in the URL, the user is redirected to an error page.
+
 4. Identification and Authentication failures, which includes both insufficient complexity requirements for passwords and storing usernames and passwords in an insecure way in the database. In addition, this includes exposing session identifiers e.g. in the URL.
 
 In this project, there are no requirements for password length or complexity, thus enabling weak and default passwords. The usernames and passwords are stored as plaintext in the database, which means that if the database is broken into, all user credentials are freely available to the intruder. Further, the username is used as the session identifier, and shown in the URL for the task list.
+
+One of the fixes would be to salt and hash all created passwords before storing them in the database. Salting refers to adding random characters to the password. The entire string is then hashed, which means that the plaintext string is put through a hashing algorithm which scrambles it to make it unreadable as such. Only hashing is insufficient because without the salt, if two users have the same password, the passwords will end up hashed in the same way and thus revealing one user's password will also reveal the other's. Because salts are unique, the resulting hashes are also unique.
+
+On way to add salting and hashing is that the following imports are added to the views.py file:
+
+import os
+from werkzeug.security import generate_password_hash, check_password_hash
+
+Thereafter, the following should be added to the adduser method before creating a new User with the hashed password:
+
+(password = request.POST['password'])
+salted_password = password + str(os.urandom(16))
+hashed_password = generate_password_hash(salted_password)
+
+In addition, the salt needs to be added to the tasks_user database table, so that it can be fetched and used when check the sign-in for accuracy. The salt can be stored as plaintext as the purpose of the salt is to avoid hashing the same strings in the event that two users choose the same password.
+
+In addition, the following is added to the signin method to compare the input password + salt with what is found (hashed) in the database:
+
+(The password is collected and user is fetched from the database with the username as in the method)
+salted_password = password + user.salt
+check_password_hash(user.password, salted_password)
+
+If this returns True then the session is established as in the method.
 
 5. Security Logging and Monitoring Failures occur when events such as logins and errors are not clearly logged in order to reveal security breaches.
 
 In this project, there is no logging of user activity, including logins or login attempts. For example, when a user logs in, the login is not recorded for future viewing.
 
-This could be enabled e.g. by ...
+This could be enabled e.g. by storing all login attempts as a CSV file:
+
+MIETI VIELÄ OLISIKO JOKIN MUU
+
+...
 
 # word count? 1000 word report (hard limits: 800-1500)
 # initialize database again?
