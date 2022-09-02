@@ -14,7 +14,7 @@ python3 manage.py migrate
 python3 manage.py runserver
 ``
 
-3. Find the app on [localhost:8000/tasks](localhost:8000/tasks)
+3. Find the app on localhost:8000/tasks
 
 The app is a very simple Tasks list. The user can register, sign in, and then view and manipulate their Tasks list.
 
@@ -49,22 +49,24 @@ user = User.objects.raw('SELECT * FROM tasks_user WHERE username = %s', [usernam
 ```
 
 ## FLAW 3
-exact source link pinpointing flaw 1...
-description of flaw 1...
-how to fix it...
+Source link: [1](https://github.com/sari-bee/CSB_project/blob/9e4ffaf84fd199385aa9dfd722bb011f47980fda/tasks/views.py#L23)
 
-3. Broken Access Control by way of allowing URLs to be manipulated in such a way as to gain access to private data.
+Flaw 3 is allowing users to gain access to private data through URL manipulation (OWASP A01, Broken Access Control). If a user's credentials are not checked when loading a page, and if the URLs of pages containing private data are constructed in such a way that other users or intruders can decipher the logic behind URL construction, the site runs the risk of revealing sensitive information to outsiders.
 
-In this project, the task listing for each user is under tasks/users/'username'. There is no check to see that the signed in user is the one accessing the page, so anyone who knows other users' usernames can access and even manipulate their task lists.
+In this project, the task listing for each user is under tasks/users/<username> and thus easily found if the usernames of other users are known. Further, there is no check to see if the user that is signed in is the one attempting to access the page (method tasks in views.py, source link 1). Thus, anyone who knows other users' usernames can access their task lists.
 
-This could be fixed by adding the following to the beginning of the tasks method:
+This flaw can be fixed by adding to the beginning of the tasks method (source link 1) a check to verify the username whose task list is attempted to access against that of the logged in user (session username), as follows:
 
+```
 if username != request.session['username']:
     return HttpResponseRedirect(reverse('error'))
+````
 
 Thus, if the username carried in the session of the user currently logged in does not match the username carried in the URL, the user is redirected to an error page.
 
 ## FLAW 4
+Source link: [1]()
+
 exact source link pinpointing flaw 1...
 description of flaw 1...
 how to fix it...
