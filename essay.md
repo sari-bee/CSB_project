@@ -1,7 +1,10 @@
 LINK: https://github.com/sari-bee/CSB_project
 
 The app is written with Python & Django.
-Apply migrations with python3 manage.py migrate
+Apply migrations with 
+´´
+python3 manage.py migrate
+´´
 Start the server with python3 manage.py runserver
 Find the app on localhost:8000/tasks
 
@@ -10,12 +13,14 @@ The app is a very simple Tasks list. The user can register, sign in, and then vi
 I have used OWASP 2021 list for the flaws.
 
 FLAW 1:
+Source links: 
+
 exact source link pinpointing flaw 1...
 description of flaw 1...
 how to fix it...
 
 1. Cross-site request forgery (CSRF). This type of attack exploits a vulnerability in checking for session credentials when submitting a form. If a CSRF token is not checked when submitting a form, a malicious intruder can utilize a signed in user's credentials by leading them to a false site through which the intruder can post forms et cetera under the user's credentials.
-
+-
 In this project, the form adding a task has no CSRF token check (it has been disabled), thus enabling a CSRF attack.
 
 In Django, in order to force CSRF token checking when submitting a form, the line {% csrf_token %} should be added to the addtask form on page tasks.html, much in the same way that it is included in e.g. the donetask form on the same page. In addition the @csrf_exempt decorator must be removed from addtask method in views.py. Django will then automatically require a CSRF token when submitting a form.
