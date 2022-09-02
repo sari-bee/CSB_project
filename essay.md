@@ -1,10 +1,12 @@
+## Intentionally Insecure Tasks App
+
 LINK: https://github.com/sari-bee/CSB_project
 
 The app is written with Python & Django.
 Apply migrations with 
-´´
+``
 python3 manage.py migrate
-´´
+``
 Start the server with python3 manage.py runserver
 Find the app on localhost:8000/tasks
 
