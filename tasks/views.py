@@ -15,7 +15,7 @@ def register(request):
     context = {}
     return HttpResponse(template.render(context, request))
 
-def error(request):
+def error(request, message):
     template = loader.get_template('tasks/error.html')
     context = {}
     return HttpResponse(template.render(context, request))
@@ -48,20 +48,23 @@ def addtask(request):
         task.save()
         return HttpResponseRedirect(reverse('tasks', args=(username,)))
     except:
-        return HttpResponseRedirect(reverse('error'))       
+        message = "fail"
+        return HttpResponseRedirect(reverse('error', args=(message,)))
 
 def adduser(request):
     username = request.POST['username']
     password = request.POST['password']
     password2 = request.POST['password2']
     if password != password2:
-        return HttpResponseRedirect(reverse('error'))
+        message = "fail"
+        return HttpResponseRedirect(reverse('error', args=(message,)))
     try:
         user = User(username=username, password=password)
         user.save()
         return HttpResponseRedirect(reverse('index'))
     except:
-        return HttpResponseRedirect(reverse('error'))
+        message = "fail"
+        return HttpResponseRedirect(reverse('error', args=(message,)))
 
 def signin(request):
     username = request.POST['username']
@@ -72,9 +75,11 @@ def signin(request):
         if password == user.password:
             request.session['username'] = username
             return HttpResponseRedirect(reverse('tasks', args=(username,)))
-        return HttpResponseRedirect(reverse('error'))
+        message = password
+        return HttpResponseRedirect(reverse('error', args=(message,)))
     except:
-        return HttpResponseRedirect(reverse('error'))
+        message = "fail"
+        return HttpResponseRedirect(reverse('error', args=(message,)))
 
 def signout(request):
     request.session.flush()
