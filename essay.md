@@ -60,66 +60,58 @@ This flaw can be fixed by adding to the beginning of the tasks method (source li
 ```
 if username != request.session['username']:
     return HttpResponseRedirect(reverse('error'))
-````
+```
 
 Thus, if the username carried in the session of the user currently logged in does not match the username carried in the URL, the user is redirected to an error page.
 
 ## FLAW 4
-Source link: [1]()
+Source link: [1](https://github.com/sari-bee/CSB_project/blob/8eb4f7e6cac4146258384ff0ec16bdef35507203/tasks/views.py#L62)
 
-exact source link pinpointing flaw 1...
-description of flaw 1...
-how to fix it...
+Flaw 4 is storing passwords in an insecure way in the database (OWASP A07, Identification and Authentication Failures).
 
-4. Identification and Authentication failures, which includes both insufficient complexity requirements for passwords and storing usernames and passwords in an insecure way in the database. In addition, this includes exposing session identifiers e.g. in the URL.
+In this project, passwords are stored as plaintext in the database (source link 1). This means that if a malicious intruder gains control of the database, they will have instant access to all user credentials. 
 
-In this project, there are no requirements for password length or complexity, thus enabling weak and default passwords. The usernames and passwords are stored as plaintext in the database, which means that if the database is broken into, all user credentials are freely available to the intruder. Further, the username is used as the session identifier, and shown in the URL for the task list.
+This can be fixed by salting and hashing all created passwords before storing them in the database. Salting refers to adding random characters to the password. The entire string is then hashed, which means that the plaintext string is put through a hashing algorithm which scrambles it to make it unreadable as such. If passwords are hashed without salting, if two users have the same password the passwords will end up hashed in the same way. Then, if one user's password is revealed, so is also the other's. Because salts are unique, the resulting hashes are also unique.
 
-One of the fixes would be to salt and hash all created passwords before storing them in the database. Salting refers to adding random characters to the password. The entire string is then hashed, which means that the plaintext string is put through a hashing algorithm which scrambles it to make it unreadable as such. Only hashing is insufficient because without the salt, if two users have the same password, the passwords will end up hashed in the same way and thus revealing one user's password will also reveal the other's. Because salts are unique, the resulting hashes are also unique.
+To enable salting and hashing, the following lines are added to the views.py file:
 
-On way to add salting and hashing is that the following imports are added to the views.py file:
+The following imports:
 
+```
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+```
 
-Thereafter, the following should be added to the adduser method before creating a new User with the hashed password:
+To the adduser method, before creating a new User (with the hashed_password):
 
-(password = request.POST['password'])
+```
 salted_password = password + str(os.urandom(16))
 hashed_password = generate_password_hash(salted_password)
+```
 
-In addition, the salt needs to be added to the tasks_user database table, so that it can be fetched and used when check the sign-in for accuracy. The salt can be stored as plaintext as the purpose of the salt is to avoid hashing the same strings in the event that two users choose the same password.
+To the signin method, to compare the input password with what is found in the database:
 
-In addition, the following is added to the signin method to compare the input password + salt with what is found (hashed) in the database:
-
-(The password is collected and user is fetched from the database with the username as in the method)
+```
 salted_password = password + user.salt
 check_password_hash(user.password, salted_password)
+```
 
-If this returns True then the session is established as in the method.
+If this returns True then the session is established.
+
+In addition, the tasks_user database table must updated to include the salt. The salt can be stored as plaintext as the purpose of the salt is to avoid ending up with the same hashes in the event that two users choose the same password.
 
 ## FLAW 5
-exact source link pinpointing flaw 1...
-description of flaw 1...
-how to fix it...
+Source link: [1](https://github.com/sari-bee/CSB_project/blob/8eb4f7e6cac4146258384ff0ec16bdef35507203/tasks/views.py#L77)
 
-5. Security Logging and Monitoring Failures occur when errors are monitored or logged in a way that reveals sensitive information to a malicious attacker.
+Flaw 5 is revealing sensitive information as part of an error message (OWASP A09, Security Logging and Monitoring Failures).
 
-In this app, when a user attempts to sign in, but types in the wrong password, an error page is shown. The URL for the error page reveals the password that the user has typed. Thus, a password possibly very closely resembling the right one is revealed as plaintext in the URL.
+In this project, if a user attempts to sign in with the wrong password, an error page is shown. The URL for the error page reveals the password that the user has typed (source link 1). Thus, a password probably closely resembling the right one is revealed as plaintext and e.g. stored in the browser history.
 
-This could be solved by leaving the argument out of the URL or by changing it into something generic such as "fail", in the views.py method signin:
-
-Replace
+To fix this, the URL for the error page should be made more generic, because the user input is not required to show the error page. In the views.py signin method (source link 1),
+```
 message = password
-with
+```
+should be replaced with
+```
 message = "fail"
-
-...
-
- word count? 1000 word report (hard limits: 800-1500)
-
- Add source link to each flaw if appropriate. Ideally, the link should have the format https://urldomain/repo/ file.py#L42 (Line 42 in file.py). The links can be easily obtained by clicking the line numbers in the Github  repository file browser. If the flaw involves in omitting some code, then comment-out the code, and provide
- the link to the beginning of the commented block.
-
- Be specific with your fix. If possible, provide a fix to the problem in the code. The fix can be commented
- out. If appropriate, add a source link to each fix as well.
+```
