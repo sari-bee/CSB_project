@@ -27,7 +27,15 @@ Flaw 1 is cross-site request forgery (CSRF). CSRF tokens are added to forms subm
 
 In this project, a CSRF vulnerability has been introduced by disabling Django's built-in CSRF token check on the method addtask in views.py (source link 2) and omitting the CSRF token from the form adding a task on tasks.html (source link 1).
 
-This can be fixed by removing the @csrf_exempt decorator from method addtask on views.py (source link 2) and by adding the line {% csrf_token %} as the first line in the addtask form on tasks.html (source link 1).
+This can be fixed by removing the
+```
+@csrf_exempt
+```
+decorator from method addtask on views.py (source link 2) and by adding the line
+```
+{% csrf_token %}
+```
+as the first line in the addtask form on tasks.html (source link 1).
 
 ## FLAW 2
 Source link: [1](https://github.com/sari-bee/CSB_project/blob/c6fa537cdb300c439afdd6cde1d7d749920fca95/tasks/views.py#L73)
@@ -53,7 +61,7 @@ Source link: [1](https://github.com/sari-bee/CSB_project/blob/9e4ffaf84fd199385a
 
 Flaw 3 is allowing users to gain access to private data through URL manipulation (OWASP A01, Broken Access Control). If a user's credentials are not checked when loading a page, and if the URLs of pages containing private data are constructed in such a way that other users or intruders can decipher the logic behind URL construction, the site runs the risk of revealing sensitive information to outsiders.
 
-In this project, the task listing for each user is under tasks/users/<username> and thus easily found if the usernames of other users are known. Further, there is no check to see if the user that is signed in is the one attempting to access the page (method tasks in views.py, source link 1). Thus, anyone who knows other users' usernames can access their task lists.
+In this project, the task listing for each user is under tasks/users/'username' and thus easily found if the usernames of other users are known. Further, there is no check to see if the user that is signed in is the one attempting to access the page (method tasks in views.py, source link 1). Thus, anyone who knows other users' usernames can access their task lists.
 
 This flaw can be fixed by adding to the beginning of the tasks method (source link 1) a check to verify the username whose task list is attempted to access against that of the logged in user (session username), as follows:
 
