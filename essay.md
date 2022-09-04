@@ -21,7 +21,7 @@ The app is a very simple Tasks list. The user can register, sign in, and then vi
 I have used OWASP 2021 list for the flaws.
 
 ## FLAW 1
-Source links: [1](https://github.com/sari-bee/CSB_project/tasks/templates/tasks/tasks.html#L30) [2](https://github.com/sari-bee/CSB_project/tasks/views.py#L40)
+Source links: [1](https://github.com/sari-bee/CSB_project/blob/5eaa25507a2fc741c875421056d4389d6e9e313e/tasks/templates/tasks/tasks.html#L30) [2](https://github.com/sari-bee/CSB_project/blob/5eaa25507a2fc741c875421056d4389d6e9e313e/tasks/views.py#L40)
 
 Flaw 1 is cross-site request forgery (CSRF). CSRF tokens are added to forms submitted on websites to ensure that the submission is originating from the site itself. The form's CSRF token is checked and matched with the session token. If the CSRF token is not checked, a malicious intruder can lead a user into a false site through which the intruder can post information with the user's credentials.
 
@@ -38,7 +38,7 @@ decorator from method addtask on views.py (source link 2) and by adding the line
 as the first line in the addtask form on tasks.html (source link 1).
 
 ## FLAW 2
-Source link: [1](https://github.com/sari-bee/CSB_project/tasks/views.py#L73)
+Source link: [1](https://github.com/sari-bee/CSB_project/blob/5eaa25507a2fc741c875421056d4389d6e9e313e/tasks/views.py#L73)
 
 Flaw 2 is SQL injection (OWASP A03, Injection). When user input is not sanitized but instead incorporated directly into an SQL command, the malicious user can input data that will perform SQL commands that were not intended (such as dropping database tables). This can be prevented e.g. by always passing user inputs as parameters to SQL commands, instead of as raw data.
 
@@ -57,7 +57,7 @@ user = User.objects.raw('SELECT * FROM tasks_user WHERE username = %s', [usernam
 ```
 
 ## FLAW 3
-Source link: [1](https://github.com/sari-bee/CSB_project/tasks/views.py#L23)
+Source link: [1](https://github.com/sari-bee/CSB_project/blob/5eaa25507a2fc741c875421056d4389d6e9e313e/tasks/views.py#L23)
 
 Flaw 3 is allowing users to gain access to private data through URL manipulation (OWASP A01, Broken Access Control). If a user's credentials are not checked when loading a page, and if the URLs of pages containing private data are constructed in such a way that other users or intruders can decipher the logic behind URL construction, the site runs the risk of revealing sensitive information to outsiders.
 
@@ -73,7 +73,7 @@ if username != request.session['username']:
 Thus, if the username carried in the session of the user currently logged in does not match the username carried in the URL, the user is redirected to an error page.
 
 ## FLAW 4
-Source link: [1](https://github.com/sari-bee/CSB_project/tasks/views.py#L62)
+Source link: [1](https://github.com/sari-bee/CSB_project/blob/5eaa25507a2fc741c875421056d4389d6e9e313e/tasks/views.py#L62)
 
 Flaw 4 is storing passwords in an insecure way in the database (OWASP A07, Identification and Authentication Failures).
 
@@ -109,7 +109,7 @@ If this returns True then the session is established.
 In addition, the tasks_user database table must updated to include the salt. The salt can be stored as plaintext as the purpose of the salt is to avoid ending up with the same hashes in the event that two users choose the same password.
 
 ## FLAW 5
-Source link: [1](https://github.com/sari-bee/CSB_project/tasks/views.py#L77)
+Source link: [1](https://github.com/sari-bee/CSB_project/blob/5eaa25507a2fc741c875421056d4389d6e9e313e/tasks/views.py#L77)
 
 Flaw 5 is revealing sensitive information as part of an error message (OWASP A09, Security Logging and Monitoring Failures).
 
